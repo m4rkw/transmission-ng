@@ -214,7 +214,7 @@ class Transmission
   private :add
 
   def add_magnet(magnet_link, params={})
-    if !magnet_link.match /^magnet:\?/
+    if !magnet_link.match /\Amagnet:\?/
       raise "This doesn't look like a magnet link to me: #{magnet_link}"
     end
     add({'filename' => magnet_link}.merge(params))
