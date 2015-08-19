@@ -4,7 +4,7 @@ TransmissionNG ruby gem
 Version history
 ---------------
 
-1.0.0 - Initial release, compatible with RPC version 15 (latest as of 18.08/2015)
+1.0.0 - Initial release, compatible with RPC version 15 (latest as of 18/08/2015)
 
 
 Description
