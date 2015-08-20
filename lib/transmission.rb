@@ -12,7 +12,7 @@ class Transmission
     @config = config
 
     @list_attributes = ['id','name','hashString','isFinished','isStalled','leftUntilDone','eta','percentDone','rateDownload',
-      'status','totalSize','rateDownload']
+      'status','totalSize','rateDownload','peersConnected','peersFrom','rateUpload','downloadedEver']
     @all_attributes = ['activityDate','addedDate','bandwidthPriority','comment','corruptEver','creator','dateCreated',
       'desiredAvailable','doneDate','downloadDir','downloadedEver','downloadLimit','downloadLimited','error',
       'errorString','eta','etaIdle','files','fileStats','hashString','haveUnchecked','haveValid','honorsSessionLimits',
@@ -170,6 +170,10 @@ class Transmission
     end
   end
   private :eval_operator
+
+  def map_name(name)
+    URI.unescape(name).gsub /\+/, ' '
+  end
 
   def map_status(code)
     case code
