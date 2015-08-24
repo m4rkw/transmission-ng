@@ -7,6 +7,7 @@ Version history
 1.0.0 - Initial release, compatible with RPC version 15 (latest as of 18/08/2015)
 1.0.1 - Minor bugfix (regex anchor)
 1.0.2 - Added a few default list attributes and fixed the name value
+1.0.3 - Added peersGettingFromUs and peersSendingToUs to default list keys
 
 
 Description

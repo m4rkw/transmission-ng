@@ -12,7 +12,8 @@ class Transmission
     @config = config
 
     @list_attributes = ['id','name','hashString','isFinished','isStalled','leftUntilDone','eta','percentDone','rateDownload',
-      'status','totalSize','rateDownload','peersConnected','peersFrom','rateUpload','downloadedEver']
+      'status','totalSize','rateDownload','peersConnected','peersFrom','rateUpload','downloadedEver','peersSendingToUs',
+      'peersGettingFromUs']
     @all_attributes = ['activityDate','addedDate','bandwidthPriority','comment','corruptEver','creator','dateCreated',
       'desiredAvailable','doneDate','downloadDir','downloadedEver','downloadLimit','downloadLimited','error',
       'errorString','eta','etaIdle','files','fileStats','hashString','haveUnchecked','haveValid','honorsSessionLimits',
