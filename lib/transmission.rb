@@ -78,7 +78,15 @@ class Transmission
       return rpc(method, args, m[1])
     end
 
+    if m = resp.body.match(/"result""([a-zA-Z]+)"/)
+      resp.body = resp.body.gsub /"result""([a-zA-Z]+)"/, ''
+    end
+
     response = JSON.parse(resp.body)
+
+    if m
+      response['result'] = m[1]
+    end
 
     if response["result"] != "success"
       raise "RPC error: " + response["result"]
