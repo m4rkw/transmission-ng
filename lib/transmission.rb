@@ -1,5 +1,5 @@
 
-require 'net/http'
+require 'mechanize'
 require 'json'
 
 $rpc_version = 15
@@ -58,31 +58,34 @@ class Transmission
   end
 
   def rpc(method, args=[], session_id=nil)
-    url = URI.parse('http://' + @config[:host] + ':' + @config[:port].to_s + '/transmission/rpc')
-
-    http = Net::HTTP.new(url.host, url.port)
-
-    req = Net::HTTP::Post.new(url.path)
-    req.basic_auth @config[:user], @config[:pass]
-    req.body = {
-      'method' => method,
-      'arguments' => args
-    }.to_json
-    req['X-Transmission-Session-Id'] = session_id
-    req['Content-Type'] = 'application/json'
-
-    resp = http.request(req)
-
-    if resp.code == "409"
-      m = resp.body.match /X-Transmission-Session-Id: (.*?)</
-      return rpc(method, args, m[1])
+    mech = Mechanize.new do |mech|
+      mech.user_agent_alias = 'Mac Safari'
+      mech.add_auth "http://#{@config[:host]}:#{@config[:port].to_s}", @config[:user], @config[:pass]
     end
 
-    if m = resp.body.match(/"result""([a-zA-Z]+)"/)
-      resp.body = resp.body.gsub /"result""([a-zA-Z]+)"/, ''
+    begin
+      resp = mech.post 'http://' + @config[:host] + ':' + @config[:port].to_s + '/transmission/rpc', {
+          'method' => method,
+          'arguments' => args
+        }.to_json, {
+          'X-Transmission-Session-Id' => session_id,
+          'Content-Type' => 'application/json'
+        }
+    rescue Mechanize::ResponseCodeError => e
+      if e.response_code == "409"
+        session_id = e.page.search('code').text.match(/X-Transmission-Session-Id: ([a-zA-Z0-9]+)/)[1]
+        return rpc method, args, session_id
+      end
+      raise e
     end
 
-    response = JSON.parse(resp.body)
+    json = resp.body
+
+    if m = json.match(/"result""([a-zA-Z]+)"/)
+      json.gsub! /"result""([a-zA-Z]+)"/, ''
+    end
+
+    response = JSON.parse(json)
 
     if m
       response['result'] = m[1]

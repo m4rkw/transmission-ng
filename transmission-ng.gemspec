@@ -1,6 +1,6 @@
 Gem::Specification.new do |s|
   s.name        = 'transmission-ng'
-  s.version     = '1.0.4'
+  s.version     = '1.0.5'
   s.date        = '2015-09-11'
   s.summary     = "Transmission API gem"
   s.description = "A better API interface for the Transmission torrent client"
@@ -9,4 +9,5 @@ Gem::Specification.new do |s|
   s.files       = ["lib/transmission.rb"]
   s.homepage    = 'https://github.com/m4rkw/transmission-ng'
   s.license     = 'MIT'
+  s.add_runtime_dependency "mechanize", ["~> 2.7"]
 end
