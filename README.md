@@ -9,6 +9,8 @@ Version history
 1.0.2 - Added a few default list attributes and fixed the name value
 1.0.3 - Added peersGettingFromUs and peersSendingToUs to default list keys
 1.0.4 - Fixed broken JSON back from RPC bug
+1.0.5 - Switched to Mechanize for http
+1.0.6 - Disable socksify when talking to Transmission
 
 
 Description

@@ -1,7 +1,7 @@
 Gem::Specification.new do |s|
   s.name        = 'transmission-ng'
-  s.version     = '1.0.5'
-  s.date        = '2015-09-11'
+  s.version     = '1.0.6'
+  s.date        = '2016-06-11'
   s.summary     = "Transmission API gem"
   s.description = "A better API interface for the Transmission torrent client"
   s.authors     = ["m4rkw"]
