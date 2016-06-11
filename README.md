@@ -11,6 +11,7 @@ Version history
 1.0.4 - Fixed broken JSON back from RPC bug
 1.0.5 - Switched to Mechanize for http
 1.0.6 - Disable socksify when talking to Transmission
+1.0.7 - Bugfix
 
 
 Description

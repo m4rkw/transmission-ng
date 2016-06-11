@@ -63,13 +63,17 @@ class Transmission
       mech.add_auth "http://#{@config[:host]}:#{@config[:port].to_s}", @config[:user], @config[:pass]
     end
 
-    if TCPSocket::socks_server
-      socks_server = TCPSocket::socks_server
-      socks_port = TCPSocket::socks_port
-      TCPSocket::socks_server = nil
-      TCPSocket::socks_port = nil
-      disabled_socksify = true
-    else
+    begin
+      if TCPSocket::socks_server
+        socks_server = TCPSocket::socks_server
+        socks_port = TCPSocket::socks_port
+        TCPSocket::socks_server = nil
+        TCPSocket::socks_port = nil
+        disabled_socksify = true
+      else
+        disabled_socksify = false
+      end
+    rescue NoMethodError
       disabled_socksify = false
     end
 
