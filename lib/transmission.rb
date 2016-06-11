@@ -63,6 +63,16 @@ class Transmission
       mech.add_auth "http://#{@config[:host]}:#{@config[:port].to_s}", @config[:user], @config[:pass]
     end
 
+    if TCPSocket::socks_server
+      socks_server = TCPSocket::socks_server
+      socks_port = TCPSocket::socks_port
+      TCPSocket::socks_server = nil
+      TCPSocket::socks_port = nil
+      disabled_socksify = true
+    else
+      disabled_socksify = false
+    end
+
     begin
       resp = mech.post 'http://' + @config[:host] + ':' + @config[:port].to_s + '/transmission/rpc', {
           'method' => method,
@@ -77,6 +87,11 @@ class Transmission
         return rpc method, args, session_id
       end
       raise e
+    end
+
+    if disabled_socksify
+      TCPSocket::socks_server = socks_server
+      TCPSocket::socks_port = socks_port
     end
 
     json = resp.body
