@@ -88,6 +88,12 @@ class Transmission
     rescue Mechanize::ResponseCodeError => e
       if e.response_code == "409"
         session_id = e.page.search('code').text.match(/X-Transmission-Session-Id: ([a-zA-Z0-9]+)/)[1]
+
+        if disabled_socksify
+          TCPSocket::socks_server = socks_server
+          TCPSocket::socks_port = socks_port
+        end
+
         return rpc method, args, session_id
       end
       raise e

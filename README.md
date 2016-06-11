@@ -12,6 +12,7 @@ Version history
 1.0.5 - Switched to Mechanize for http
 1.0.6 - Disable socksify when talking to Transmission
 1.0.7 - Bugfix
+1.0.8 - Bugfix
 
 
 Description
