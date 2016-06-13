@@ -106,10 +106,6 @@ class Transmission
 
     json = resp.body
 
-    if m = json.match(/"result""([a-zA-Z]+)"/)
-      json.gsub! /"result""([a-zA-Z]+)"/, ''
-    end
-
     response = JSON.parse(json)
 
     if m

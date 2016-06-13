@@ -13,6 +13,7 @@ Version history
 1.0.6 - Disable socksify when talking to Transmission
 1.0.7 - Bugfix
 1.0.8 - Bugfix
+1.0.9 - Removed nasty regex replace for broken libtransmission
 
 
 Description
@@ -30,6 +31,11 @@ Installation
 ------------
 
 sudo gem install transmission-ng
+
+Note: ensure you are running the latest transmission.  On ubuntu you need to add the
+Transmission apt repository:
+
+    sudo add-apt-repository ppa:transmissionbt/ppa
 
 
 Usage
