@@ -108,10 +108,6 @@ class Transmission
 
     response = JSON.parse(json)
 
-    if m
-      response['result'] = m[1]
-    end
-
     if response["result"] != "success"
       raise "RPC error: " + response["result"]
     end
