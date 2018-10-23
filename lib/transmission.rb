@@ -58,58 +58,60 @@ class Transmission
   end
 
   def rpc(method, args=[], session_id=nil)
-    mech = Mechanize.new do |mech|
+    response = nil
+
+    Mechanize.start do |mech|
       mech.user_agent_alias = 'Mac Safari'
       mech.add_auth "http://#{@config[:host]}:#{@config[:port].to_s}", @config[:user], @config[:pass]
-    end
 
-    begin
-      if TCPSocket::socks_server
-        socks_server = TCPSocket::socks_server
-        socks_port = TCPSocket::socks_port
-        TCPSocket::socks_server = nil
-        TCPSocket::socks_port = nil
-        disabled_socksify = true
-      else
+      begin
+        if TCPSocket::socks_server
+          socks_server = TCPSocket::socks_server
+          socks_port = TCPSocket::socks_port
+          TCPSocket::socks_server = nil
+          TCPSocket::socks_port = nil
+          disabled_socksify = true
+        else
+          disabled_socksify = false
+        end
+      rescue NoMethodError
         disabled_socksify = false
       end
-    rescue NoMethodError
-      disabled_socksify = false
-    end
 
-    begin
-      resp = mech.post 'http://' + @config[:host] + ':' + @config[:port].to_s + '/transmission/rpc', {
-          'method' => method,
-          'arguments' => args
-        }.to_json, {
-          'X-Transmission-Session-Id' => session_id,
-          'Content-Type' => 'application/json'
-        }
-    rescue Mechanize::ResponseCodeError => e
-      if e.response_code == "409"
-        session_id = e.page.search('code').text.match(/X-Transmission-Session-Id: ([a-zA-Z0-9]+)/)[1]
+      begin
+        resp = mech.post 'http://' + @config[:host] + ':' + @config[:port].to_s + '/transmission/rpc', {
+            'method' => method,
+            'arguments' => args
+          }.to_json, {
+            'X-Transmission-Session-Id' => session_id,
+            'Content-Type' => 'application/json'
+          }
+      rescue Mechanize::ResponseCodeError => e
+        if e.response_code == "409"
+          session_id = e.page.search('code').text.match(/X-Transmission-Session-Id: ([a-zA-Z0-9]+)/)[1]
 
-        if disabled_socksify
-          TCPSocket::socks_server = socks_server
-          TCPSocket::socks_port = socks_port
+          if disabled_socksify
+            TCPSocket::socks_server = socks_server
+            TCPSocket::socks_port = socks_port
+          end
+
+          return rpc method, args, session_id
         end
-
-        return rpc method, args, session_id
+        raise e
       end
-      raise e
-    end
 
-    if disabled_socksify
-      TCPSocket::socks_server = socks_server
-      TCPSocket::socks_port = socks_port
-    end
+      if disabled_socksify
+        TCPSocket::socks_server = socks_server
+        TCPSocket::socks_port = socks_port
+      end
 
-    json = resp.body
+      json = resp.body
 
-    response = JSON.parse(json)
+      response = JSON.parse(json)
 
-    if response["result"] != "success"
-      raise "RPC error: " + response["result"]
+      if response["result"] != "success"
+        raise "RPC error: " + response["result"]
+      end
     end
 
     response
@@ -131,7 +133,7 @@ class Transmission
       :fields => attributes
     }
 
-    if ids.is_a? Fixnum
+    if ids.is_a? Integer
       ids = [ids]
       single = true
     else

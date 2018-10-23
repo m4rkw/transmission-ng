@@ -15,6 +15,7 @@ Version history
 1.0.8 - Bugfix
 1.0.9 - Removed nasty regex replace for broken libtransmission
 1.0.10 - Fixed typo
+1.0.11 - Bugfix for tcp connection exhaustion
 
 
 Description
