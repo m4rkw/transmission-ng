@@ -3,6 +3,17 @@ require 'mechanize'
 require 'json'
 
 $rpc_version = 15
+$VERBOSE = nil
+
+module Kernel
+  def reload(lib)
+    if old = $LOADED_FEATURES.find{|path| path=~/#{Regexp.escape lib}(\.rb)?\z/ }
+      load old
+    else
+      require lib
+    end
+  end
+end
 
 class Transmission
   attr_accessor :list_attributes
@@ -58,25 +69,25 @@ class Transmission
   end
 
   def rpc(method, args=[], session_id=nil)
-    response = nil
+    resp = nil
+
+    begin
+      if TCPSocket::socks_server
+        socks_server = TCPSocket::socks_server
+        socks_port = TCPSocket::socks_port
+        TCPSocket::socks_server = nil
+        TCPSocket::socks_port = nil
+        disabled_socksify = true
+      else
+        disabled_socksify = false
+      end
+    rescue NoMethodError
+      disabled_socksify = false
+    end
 
     Mechanize.start do |mech|
       mech.user_agent_alias = 'Mac Safari'
       mech.add_auth "http://#{@config[:host]}:#{@config[:port].to_s}", @config[:user], @config[:pass]
-
-      begin
-        if TCPSocket::socks_server
-          socks_server = TCPSocket::socks_server
-          socks_port = TCPSocket::socks_port
-          TCPSocket::socks_server = nil
-          TCPSocket::socks_port = nil
-          disabled_socksify = true
-        else
-          disabled_socksify = false
-        end
-      rescue NoMethodError
-        disabled_socksify = false
-      end
 
       begin
         resp = mech.post 'http://' + @config[:host] + ':' + @config[:port].to_s + '/transmission/rpc', {
@@ -99,19 +110,19 @@ class Transmission
         end
         raise e
       end
+    end
 
-      if disabled_socksify
-        TCPSocket::socks_server = socks_server
-        TCPSocket::socks_port = socks_port
-      end
+    if disabled_socksify
+      TCPSocket::socks_server = socks_server
+      TCPSocket::socks_port = socks_port
+    end
 
-      json = resp.body
+    json = resp.body
 
-      response = JSON.parse(json)
+    response = JSON.parse(json)
 
-      if response["result"] != "success"
-        raise "RPC error: " + response["result"]
-      end
+    if response["result"] != "success"
+      raise "RPC error: " + response["result"]
     end
 
     response
@@ -248,11 +259,35 @@ class Transmission
   end
   private :add
 
+  def all_ids
+    ids = []
+
+    list.each do |tor|
+      ids.push tor['id']
+    end
+
+    ids
+  end
+
   def add_magnet(magnet_link, params={})
     if !magnet_link.match /\Amagnet:\?/
       raise "This doesn't look like a magnet link to me: #{magnet_link}"
     end
+    ids_before = all_ids
+
     add({'filename' => magnet_link}.merge(params))
+
+    while 1
+      diff = all_ids - ids_before
+
+      if diff
+        break
+      end
+
+      sleep 0.1
+    end
+
+    return diff[0]
   end
 
   def add_torrentfile(torrent_file, params={})
