@@ -278,16 +278,13 @@ class Transmission
     add({'filename' => magnet_link}.merge(params))
 
     while 1
-      diff = all_ids - ids_before
-
-      if diff
-        break
+      all_ids.each do |id|
+        if !ids_before.include? id
+          return id
+        end
       end
-
       sleep 0.1
     end
-
-    return diff[0]
   end
 
   def add_torrentfile(torrent_file, params={})
